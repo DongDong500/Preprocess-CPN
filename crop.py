@@ -50,6 +50,7 @@ if __name__ == "__main__":
         
         if not os.path.exists(imd) or not os.path.exists(mad):
             raise RuntimeError('File Not exists: \n {}\n {}'.format(imd, mad))
+        
         if os.path.exists(imdst):
             continue
         
@@ -65,7 +66,6 @@ if __name__ == "__main__":
         
         img = cutImage(img, roi)
         mask = cutImage(mask, roi)
-        
         ol = cv.addWeighted(img, 1, 255-mask, 0.2, 0)
 
         cv.imwrite(imdst, img)
