@@ -50,6 +50,8 @@ if __name__ == "__main__":
         
         if not os.path.exists(imd) or not os.path.exists(mad):
             raise RuntimeError('File Not exists: \n {}\n {}'.format(imd, mad))
+        if os.path.exists(imdst):
+            continue
         
         img = cv.imread(imd, cv.IMREAD_GRAYSCALE)
         mask = cv.imread(mad, cv.IMREAD_GRAYSCALE)
