@@ -2,6 +2,7 @@ import os
 import argparse
 import cv2 as cv
 import numpy as np
+import pandas as pd
 
 def get_argparser():
     parser = argparse.ArgumentParser()
@@ -54,6 +55,13 @@ if __name__ == "__main__":
         if os.path.exists(imdst):
             continue
         
+        df = os.path.join(root_dir, 'datasets', opts.datasets, 'CPN_utf8.csv')
+        col = ['ID', 'width', 'height', 'roi']
+        if not os.path.exists(df):
+            ROI = pd.DataFrame(columns=col)
+        else:
+            ROI = pd.read_csv(df, encoding='utf-8', index_col=0)
+        
         img = cv.imread(imd, cv.IMREAD_GRAYSCALE)
         mask = cv.imread(mad, cv.IMREAD_GRAYSCALE)
         idx += 1
@@ -64,6 +72,18 @@ if __name__ == "__main__":
         
         roi = cv.selectROI(windowName=winname, img=img)
         
+        if roi[2] == 0 or roi[3] == 0:
+            cv.destroyAllWindows()
+            continue
+        
+        x1, y1, x2, y2 = roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3]
+        pro_roi = (mask > 0).sum() / (mask.size)
+        new_row = {'ID' : f_name.split('.')[0],
+                   'width' : x2,
+                   'heigth' : y2,
+                   'roi' : np.round(pro_roi, 6)}            
+        ROI = ROI.append(new_row, ignore_index=True)
+        ROI.to_csv(df, encoding='utf-8')
         img = cutImage(img, roi)
         mask = cutImage(mask, roi)
         ol = cv.addWeighted(img, 1, 255-mask, 0.2, 0)
