@@ -73,24 +73,33 @@ if __name__ == "__main__":
         roi = cv.selectROI(windowName=winname, img=img)
         
         if roi[2] == 0 or roi[3] == 0:
-            cv.destroyAllWindows()
-            continue
-        
-        x1, y1, x2, y2 = roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3]
-        pro_roi = (mask > 0).sum() / (mask.size)
-        new_row = {'ID' : f_name.split('.')[0],
-                   'width' : x2,
-                   'heigth' : y2,
-                   'roi' : np.round(pro_roi, 6)}            
-        ROI = ROI.append(new_row, ignore_index=True)
-        ROI.to_csv(df, encoding='utf-8')
-        img = cutImage(img, roi)
-        mask = cutImage(mask, roi)
-        ol = cv.addWeighted(img, 1, 255-mask, 0.2, 0)
-
-        cv.imwrite(imdst, img)
-        cv.imwrite(madst, mask)
-        cv.imwrite(oldst, ol)
+            ol = cv.addWeighted(img, 1, 255-mask, 0.2, 0)
+            x1, y1, x2, y2 = 0, 0, img.shape[1], img.shape[0]
+            pro_roi = (mask > 0).sum() / (mask.size)
+            new_row = {'ID' : f_name.split('.')[0],
+                    'width' : x2,
+                    'height' : y2,
+                    'roi' : np.round(pro_roi, 6)}            
+            ROI = ROI.append(new_row, ignore_index=True)
+            ROI.to_csv(df, encoding='utf-8')
+            cv.imwrite(imdst, img)
+            cv.imwrite(madst, mask)
+            cv.imwrite(oldst, ol)
+        else:
+            img = cutImage(img, roi)
+            mask = cutImage(mask, roi)
+            ol = cv.addWeighted(img, 1, 255-mask, 0.2, 0)
+            x1, y1, x2, y2 = roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3]
+            pro_roi = (mask > 0).sum() / (mask.size)
+            new_row = {'ID' : f_name.split('.')[0],
+                    'width' : x2,
+                    'height' : y2,
+                    'roi' : np.round(pro_roi, 6)}            
+            ROI = ROI.append(new_row, ignore_index=True)
+            ROI.to_csv(df, encoding='utf-8')
+            cv.imwrite(imdst, img)
+            cv.imwrite(madst, mask)
+            cv.imwrite(oldst, ol)
         
         cv.destroyAllWindows()
         
